@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Monedas virtuales</title>
+    <link rel="icon" href="../static/img/mundo.png" type="image/png"> <!-- Ruta a tu ícono -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Prueba técnica- Desarrollador Fullstack</h1>
+        </header>
+        <div class="graph-container">
+            <div id="grafico"></div>
+        </div>
+        <footer>
+            <p>© 2024 - Derechos Reservados - Marlon Javier Guete Arrieta</p>
+        </footer>
+    </div>
+
+    <script>
+        function actualizarGrafica() {
+            // Realizar una solicitud AJAX para obtener nuevos datos
+            fetch('/get_data') // Reemplaza '/obtener_nuevos_datos' con la URL correspondiente en tu aplicación
+                .then(response => response.json())
+                .then(data => {
+                    // Filtrar y procesar los nuevos datos (similar a tu código original)
+                    const ethData = data.filter(item => item.Symbol === 'ETH');
+                    const btcData = data.filter(item => item.Symbol === 'BTC');
+                    const ethDates = ethData.map(item => new Date(item.Time));
+                    const ethPrices = ethData.map(item => parseFloat(item.Price));
+                    const btcDates = btcData.map(item => new Date(item.Time));
+                    const btcPrices = btcData.map(item => parseFloat(item.Price));
+
+                    // Actualizar la gráfica con los nuevos datos
+                    const traceETH = {
+                        x: ethDates,
+                        y: ethPrices,
+                        mode: 'lines+markers',
+                        name: 'Ethereum'
+                    };
+                    const traceBTC = {
+                        x: btcDates,
+                        y: btcPrices,
+                        mode: 'lines+markers',
+                        name: 'Bitcoin'
+                    };
+                    const layout = {
+                        title: 'Precio de Ethereum y Bitcoin a lo largo del tiempo',
+                        xaxis: {
+                            title: 'Hora'
+                        },
+                        yaxis: {
+                            title: 'Precio'
+                        }
+                    };
+                    const dataToPlot = [traceETH, traceBTC];
+                    Plotly.react('grafico', dataToPlot, layout); // Actualizar la gráfica
+                })
+                .catch(error => console.error('Error al obtener datos:', error));
+        }
+
+        setInterval(actualizarGrafica, 10000);
+
+        // Llamar a la función inicialmente para mostrar la gráfica con los datos iniciales
+        actualizarGrafica();
+
+        window.onresize = function () {
+            Plotly.relayout('grafico', {
+                width: document.getElementById('grafico').offsetWidth,
+                height: document.getElementById('grafico').offsetHeight
+            });
+        };
+    </script>
+</body>
+
+</html>
